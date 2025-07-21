@@ -19,21 +19,17 @@ public class GameManager : MonoBehaviour
     private int currentLevel;
     private int currentLivesCount;
     private List<CloudData> currentClouds;
+    private List<Cloud> selectedCards = new List<Cloud>();
 
     private int score;
     private int matchesCount;
     private int movesCount;
-
 
     public List<CloudData> CloudData => currentClouds;
     public int RowCount => currentRowCount;
     public int TotalClouds => currentTotalClouds;
     public int LivesCount => currentLivesCount;
 
-
-    private Cloud firstSelected;
-    private Cloud secondSelected;
-    public bool IsBusy { get; private set; }
 
     private void Awake()
     {
@@ -57,6 +53,9 @@ public class GameManager : MonoBehaviour
     private void GameInitialize()
     {
         currentLevel = 0;
+        score = 0;
+        matchesCount = 0;
+        movesCount = 0;
         totalLevels = gameData.levels.Count;
         InitializeLevel(currentLevel);
     }
@@ -72,41 +71,36 @@ public class GameManager : MonoBehaviour
         OnLevelDataReady?.Invoke();
     }
 
-    public void OnCloudSelected(Cloud selected)
+    public void OnCloudSelected(Cloud cloud)
     {
-        if (firstSelected == null)
-        {
-            firstSelected = selected;
-            return;
-        }
+        if (selectedCards.Contains(cloud)) return;
 
-        if (secondSelected == null && selected != firstSelected)
+        selectedCards.Add(cloud);
+
+        if (selectedCards.Count == 2)
         {
-            secondSelected = selected;
-            StartCoroutine(CheckMatch());
+            StartCoroutine(CheckMatch(selectedCards[0], selectedCards[1]));
+            selectedCards.Clear(); 
         }
     }
-    
-    private IEnumerator CheckMatch()
+
+
+    private IEnumerator CheckMatch(Cloud a, Cloud b)
     {
-        IsBusy = true;
+        yield return new WaitForSeconds(0.5f);
 
-        yield return new WaitForSeconds(0.5f); 
-
-        if (firstSelected.BackName == secondSelected.BackName)
+        if (a.BackName == b.BackName)
         {
-            firstSelected.MarkAsMatched();
-            secondSelected.MarkAsMatched();
+            Debug.Log("Match found!");
+            a.MarkAsMatched();
+            b.MarkAsMatched();
         }
         else
         {
             yield return new WaitForSeconds(0.5f);
-            StartCoroutine(firstSelected.Flip(false));
-            StartCoroutine(secondSelected.Flip(false));
+            StartCoroutine(a.Flip(false));
+            StartCoroutine(b.Flip(false));
         }
-
-        firstSelected = null;
-        secondSelected = null;
-        IsBusy = false;
     }
+
 }

@@ -35,13 +35,14 @@ public class Cloud : MonoBehaviour
         cloudFrontImage.sprite = data.front.imageFront;
     }
 
-    private void OnClicked()
+    public void OnClicked()
     {
-        if (isFlipped || isMatched || GameManager.Instance.IsBusy) return;
+        if (isFlipped || isMatched) return;
 
         StartCoroutine(Flip(true));
         GameManager.Instance.OnCloudSelected(this);
     }
+
 
     public IEnumerator Flip(bool showBack)
     {
@@ -93,7 +94,7 @@ public class Cloud : MonoBehaviour
 
     private IEnumerator DestroyAfterDelay()
     {
-        yield return new WaitForSeconds(0.15f);
+        yield return new WaitForSeconds(0.25f);
         Destroy(gameObject);
     }
 
