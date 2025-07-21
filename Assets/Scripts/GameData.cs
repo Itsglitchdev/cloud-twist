@@ -14,6 +14,7 @@ public class levelData
     public int row;
     public int col;
     public int matchCount;
+    public int lives;
     public List<CloudData> clouds = new List<CloudData>();
 }
 
