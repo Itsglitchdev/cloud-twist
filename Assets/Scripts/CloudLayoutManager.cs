@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +9,8 @@ public class CloudLayoutManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject cloudParent;
     [SerializeField] private GameObject cloudPrefab;
-
+    
+    public static event Action OnCloudsReady;
     private GridLayoutGroup grid;
 
     void Awake()
@@ -18,12 +20,16 @@ public class CloudLayoutManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.Instance.OnLevelDataReady += InitializeLayout;
+        GameManager.OnLevelInitialized += InitializeLayout;
+        GameManager.OnGameWin += DestroyAllClouds;
+        GameManager.OnGameOver += DestroyAllClouds;
     }
 
     private void OnDisable()
     {
-        GameManager.Instance.OnLevelDataReady -= InitializeLayout;
+        GameManager.OnLevelInitialized -= InitializeLayout;
+        GameManager.OnGameWin -= DestroyAllClouds;
+        GameManager.OnGameOver -= DestroyAllClouds;
     }
 
     private void InitializeLayout()
@@ -34,10 +40,10 @@ public class CloudLayoutManager : MonoBehaviour
 
     private void SetupGrid()
     {
-        
+
         if (grid != null)
         {
-           
+
             grid.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             grid.constraintCount = GameManager.Instance.RowCount;
         }
@@ -46,6 +52,7 @@ public class CloudLayoutManager : MonoBehaviour
     private IEnumerator InstantiateCloudsCoroutine()
     {
         List<CloudData> cloudDataList = GameManager.Instance.CloudData;
+        grid.enabled = true;
         for (int i = 0; i < cloudDataList.Count; i++)
         {
             GameObject cloud = Instantiate(cloudPrefab, cloudParent.transform);
@@ -53,11 +60,21 @@ public class CloudLayoutManager : MonoBehaviour
             Cloud cloudComponent = cloud.GetComponent<Cloud>();
             cloudComponent.Setup(cloudDataList[i]);
 
-            yield return null; 
+            yield return null;
         }
-        grid.enabled = false;  
 
         Debug.Log($"{cloudDataList.Count} clouds instantiated.");
+        OnCloudsReady?.Invoke(); 
+        yield return null;
+        grid.enabled = false;
+    }
+
+    private void DestroyAllClouds()
+    { 
+        foreach (Transform child in cloudParent.transform)
+        {
+            Destroy(child.gameObject);
+        }
     }
 
 

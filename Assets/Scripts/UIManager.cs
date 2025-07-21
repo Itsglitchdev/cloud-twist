@@ -13,6 +13,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject gameWinPanel;
     [SerializeField] private GameObject gameOverPanel;
 
+    [SerializeField] private GameObject loadingObject;
+    [SerializeField] private GameObject cloudHolderObject;
+
     [Header("Button Reference")]
     [SerializeField] private Button startButton;
     [SerializeField] private Button nextLevelButton;
@@ -31,13 +34,38 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        InitializedPanels();
+        ButtonEventsHandler();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnEnable()
     {
+        GameManager.OnLevelChanged += UpdateLevel;
+        GameManager.OnScoreChanged += UpdateScore;
+        GameManager.OnMovesChanged += UpdateMoves;
+        GameManager.OnLivesChanged += UpdateLives;
+        GameManager.OnMatchesChanged += UpdateMatches;
+        GameManager.OnWinText += ShowWinText;
 
+        GameManager.OnGameWin += OnGameWin;
+        GameManager.OnGameOver += OnGameOver;
+
+        CloudLayoutManager.OnCloudsReady += OnCloudsReady;
+    }
+
+    void OnDisable()
+    {
+        GameManager.OnLevelChanged -= UpdateLevel;
+        GameManager.OnScoreChanged -= UpdateScore;
+        GameManager.OnMovesChanged -= UpdateMoves;
+        GameManager.OnLivesChanged -= UpdateLives;
+        GameManager.OnMatchesChanged -= UpdateMatches;
+        GameManager.OnWinText -= ShowWinText;
+
+        GameManager.OnGameWin -= OnGameWin;
+        GameManager.OnGameOver -= OnGameOver;
+
+        CloudLayoutManager.OnCloudsReady -= OnCloudsReady;
     }
 
     void InitializedPanels()
@@ -46,6 +74,8 @@ public class UIManager : MonoBehaviour
         inGamePanel.SetActive(false);
         gameWinPanel.SetActive(false);
         gameOverPanel.SetActive(false);
+        loadingObject.SetActive(false);
+        cloudHolderObject.SetActive(false);
     }
 
     void ButtonEventsHandler()
@@ -59,6 +89,15 @@ public class UIManager : MonoBehaviour
     {
         startPanel.SetActive(false);
         inGamePanel.SetActive(true);
+        loadingObject.SetActive(true);
+
+        GameManager.Instance.GameInitialize();
+    }
+
+    void OnCloudsReady()
+    {
+        loadingObject.SetActive(false);
+        cloudHolderObject.SetActive(true);
     }
 
     void OnGameWin()
@@ -71,6 +110,10 @@ public class UIManager : MonoBehaviour
     {
         gameWinPanel.SetActive(false);
         inGamePanel.SetActive(true);
+        loadingObject.SetActive(true);
+        cloudHolderObject.SetActive(false);
+
+        GameManager.Instance.OnNextLevel();
     }
 
     void OnGameOver()
@@ -83,6 +126,42 @@ public class UIManager : MonoBehaviour
     {
         gameOverPanel.SetActive(false);
         inGamePanel.SetActive(true);
+        loadingObject.SetActive(true); 
+        cloudHolderObject.SetActive(false);
+
+        GameManager.Instance.OnRestartLevel();
     }
+
+    void UpdateLevel(int levelIndex)
+    {
+        levelText.text = $"Level {levelIndex + 1}";
+    }
+
+    void UpdateScore(int score)
+    {
+        scoreText.text = $"Score: {score}";
+    }
+
+    void UpdateMoves(int moves)
+    {
+        movesText.text = $"Moves: {moves}";
+    }
+
+    void UpdateLives(int lives)
+    {
+        livesText.text = $"Lives: {lives}";
+    }
+
+    void UpdateMatches(int matches)
+    {
+        matchesText.text = $"Matches: {matches}";
+    }
+
+    void ShowWinText(int level, int moves, int score)
+    {
+        winText.text = $"Level {level} Complete!\nYou did it in {moves} moves with a score of {score}. Great job!";
+    }
+
+
 
 }

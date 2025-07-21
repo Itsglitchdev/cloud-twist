@@ -58,6 +58,9 @@ public class Cloud : MonoBehaviour
 
         while (elapsedTime < rotationDuration)
         {
+            if (this == null || gameObject == null)
+                yield break;
+
             float t = elapsedTime / rotationDuration;
 
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
