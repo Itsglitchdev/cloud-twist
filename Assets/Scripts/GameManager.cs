@@ -110,6 +110,7 @@ public class GameManager : MonoBehaviour
 
         selectedCards.Add(cloud);
         movesCount++;
+        AudioManager.Instance.PlayCloudFlipSound();
         OnMovesChanged?.Invoke(movesCount);
         if (selectedCards.Count == 2)
         {
@@ -132,6 +133,7 @@ public class GameManager : MonoBehaviour
             comboStreak++;
             matchesCount++;
             score += comboStreak * 10;
+            AudioManager.Instance.PlayCloudMatchSound();
             OnScoreChanged?.Invoke(score);
             OnMatchesChanged?.Invoke(matchesCount);
 
@@ -140,6 +142,7 @@ public class GameManager : MonoBehaviour
                 OnGameWin?.Invoke();
                 OnWinText?.Invoke(currentLevel + 1, movesCount, score);
                 selectedCards.Clear();
+                AudioManager.Instance.PlayGameWinSound();
                 Debug.Log("Game Win!");
             }
         }
@@ -151,12 +154,14 @@ public class GameManager : MonoBehaviour
 
             comboStreak = 0;
             currentLivesCount--;
+            AudioManager.Instance.PlayCloudMismatchSound();
             OnLivesChanged?.Invoke(currentLivesCount);
 
             if (currentLivesCount == 0)
             {
                 OnGameOver.Invoke();
                 selectedCards.Clear();
+                AudioManager.Instance.PlayGameOverSound();
                 Debug.Log("Game Over!");
             }
         }
