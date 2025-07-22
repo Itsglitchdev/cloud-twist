@@ -26,6 +26,8 @@ public class Cloud : MonoBehaviour
         ResetCloud();
     }
 
+    #region Public Methods
+
     public void Setup(CloudData data)
     {
         cloudBackName = data.back.cloudBack;
@@ -43,16 +45,15 @@ public class Cloud : MonoBehaviour
         GameManager.Instance.OnCloudSelected(this);
     }
 
-
     public IEnumerator Flip(bool showBack)
     {
         isFlipped = showBack;
 
-        float rotationDuration = 0.25f;
-        float elapsedTime = 0f;
+        float rotationDuration = GameConstants.FLOAT_ZERO_POINT_TWENTYFIVE;
+        float elapsedTime = GameConstants.FLOAT_ZERO;
 
         Quaternion startRotation = transform.rotation;
-        Quaternion targetRotation = Quaternion.Euler(0f, showBack ? 180f : 0f, 0f);
+        Quaternion targetRotation = Quaternion.Euler(GameConstants.FLOAT_ZERO, showBack ? GameConstants.FLOAT_ONE_EIGHT_ZERO : GameConstants.FLOAT_ZERO, GameConstants.FLOAT_ZERO);
 
         bool imageSwitched = false;
 
@@ -63,10 +64,10 @@ public class Cloud : MonoBehaviour
 
             float t = elapsedTime / rotationDuration;
 
-            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+            float smoothT = Mathf.SmoothStep(GameConstants.FLOAT_ZERO, GameConstants.FLOAT_ONE, t);
             transform.rotation = Quaternion.Slerp(startRotation, targetRotation, smoothT);
 
-            if (!imageSwitched && t > 0.5f)
+            if (!imageSwitched && t > GameConstants.FLOAT_ZERO_POINT_FIVE)
             {
                 cloudFrontImage.gameObject.SetActive(!showBack);
                 cloudBackImage.gameObject.SetActive(showBack);
@@ -80,6 +81,15 @@ public class Cloud : MonoBehaviour
         transform.rotation = targetRotation;
     }
 
+
+    public void MarkAsMatched()
+    {
+        isMatched = true;
+        StartCoroutine(DestroyAfterDelay());
+    }
+
+    #endregion
+
     private void ResetCloud()
     {
         isFlipped = false;
@@ -89,15 +99,9 @@ public class Cloud : MonoBehaviour
         transform.rotation = Quaternion.identity;
     }
 
-    public void MarkAsMatched()
-    {
-        isMatched = true;
-        StartCoroutine(DestroyAfterDelay());
-    }
-
     private IEnumerator DestroyAfterDelay()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(GameConstants.FLOAT_ZERO_POINT_FIVE);
         Destroy(gameObject);
     }
 

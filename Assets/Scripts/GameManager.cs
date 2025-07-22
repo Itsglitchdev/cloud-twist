@@ -7,8 +7,6 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
-    private const string CURRENTLEVELKEY = "currentLevel";
-
     public static GameManager Instance { get; private set; }
     public static event Action OnLevelInitialized;
     public static event Action OnGameWin;
@@ -66,20 +64,13 @@ public class GameManager : MonoBehaviour
         // InitializeLevel(currentLevel);
     }
 
-    public void GameInitialize()
-    {
-        currentLevel = PlayerPrefs.GetInt(CURRENTLEVELKEY, 0);
-        totalLevels = gameData.levels.Count;
-        Debug.Log($"Total levels: {totalLevels}");
-        PrepareLevelState();
-    }
 
     private void PrepareLevelState()
     {
-        score = 0;
-        matchesCount = 0;
-        movesCount = 0;
-        comboStreak = 0;
+        score = GameConstants.INT_ZERO;
+        matchesCount = GameConstants.INT_ZERO;
+        movesCount = GameConstants.INT_ZERO;
+        comboStreak = GameConstants.INT_ZERO;
         InitializeLevel(currentLevel);
         EmitEvents();
         OnLevelInitialized?.Invoke();
@@ -98,10 +89,67 @@ public class GameManager : MonoBehaviour
     {
         currentRowCount = gameData.levels[levelIndex].row;
         currentColumnCount = gameData.levels[levelIndex].col;
-        currentTotalClouds = gameData.levels[levelIndex].matchCount * 2;
+        currentTotalClouds = gameData.levels[levelIndex].matchCount * GameConstants.INT_TWO;
         currentLivesCount = gameData.levels[levelIndex].lives;
         currentClouds = new List<CloudData>(gameData.levels[levelIndex].clouds);
 
+    }
+
+    private IEnumerator CheckMatch(Cloud a, Cloud b)
+    {
+        yield return new WaitForSeconds(GameConstants.FLOAT_ZERO_POINT_FIVE);
+
+        if (a.BackName == b.BackName)
+        {
+            Debug.Log("Match found!");
+            a.MarkAsMatched();
+            b.MarkAsMatched();
+
+            comboStreak++;
+            matchesCount++;
+            score += comboStreak * GameConstants.INT_TEN;
+            AudioManager.Instance.PlayCloudMatchSound();
+            OnScoreChanged?.Invoke(score);
+            OnMatchesChanged?.Invoke(matchesCount);
+
+            if (matchesCount == gameData.levels[currentLevel].matchCount)
+            {
+                OnGameWin?.Invoke();
+                OnWinText?.Invoke(currentLevel + GameConstants.INT_ZERO, movesCount, score);
+                selectedCards.Clear();
+                AudioManager.Instance.PlayGameWinSound();
+                Debug.Log("Game Win!");
+            }
+        }
+        else
+        {
+            yield return new WaitForSeconds(GameConstants.FLOAT_ZERO_POINT_FIVE);
+            StartCoroutine(a.Flip(false));
+            StartCoroutine(b.Flip(false));
+
+            comboStreak = GameConstants.INT_ZERO;
+            currentLivesCount--;
+            AudioManager.Instance.PlayCloudMismatchSound();
+            OnLivesChanged?.Invoke(currentLivesCount);
+
+            if (currentLivesCount == GameConstants.FLOAT_ZERO)
+            {
+                OnGameOver.Invoke();
+                selectedCards.Clear();
+                AudioManager.Instance.PlayGameOverSound();
+                Debug.Log("Game Over!");
+            }
+        }
+    }
+
+    #region Public Methods
+
+    public void GameInitialize()
+    {
+        currentLevel = PlayerPrefs.GetInt(GameConstants.CURRENTLEVELKEY, GameConstants.INT_ZERO);
+        totalLevels = gameData.levels.Count;
+        Debug.Log($"Total levels: {totalLevels}");
+        PrepareLevelState();
     }
 
     public void OnCloudSelected(Cloud cloud)
@@ -112,67 +160,19 @@ public class GameManager : MonoBehaviour
         movesCount++;
         AudioManager.Instance.PlayCloudFlipSound();
         OnMovesChanged?.Invoke(movesCount);
-        if (selectedCards.Count == 2)
+        if (selectedCards.Count == GameConstants.INT_TWO)
         {
-            StartCoroutine(CheckMatch(selectedCards[0], selectedCards[1]));
+            StartCoroutine(CheckMatch(selectedCards[GameConstants.INT_ZERO], selectedCards[GameConstants.INT_ONE]));
             selectedCards.Clear();
-        }
-    }
-
-
-    private IEnumerator CheckMatch(Cloud a, Cloud b)
-    {
-        yield return new WaitForSeconds(0.5f);
-
-        if (a.BackName == b.BackName)
-        {
-            Debug.Log("Match found!");
-            a.MarkAsMatched();
-            b.MarkAsMatched();
-
-            comboStreak++;
-            matchesCount++;
-            score += comboStreak * 10;
-            AudioManager.Instance.PlayCloudMatchSound();
-            OnScoreChanged?.Invoke(score);
-            OnMatchesChanged?.Invoke(matchesCount);
-
-            if (matchesCount == gameData.levels[currentLevel].matchCount)
-            {
-                OnGameWin?.Invoke();
-                OnWinText?.Invoke(currentLevel + 1, movesCount, score);
-                selectedCards.Clear();
-                AudioManager.Instance.PlayGameWinSound();
-                Debug.Log("Game Win!");
-            }
-        }
-        else
-        {
-            yield return new WaitForSeconds(0.5f);
-            StartCoroutine(a.Flip(false));
-            StartCoroutine(b.Flip(false));
-
-            comboStreak = 0;
-            currentLivesCount--;
-            AudioManager.Instance.PlayCloudMismatchSound();
-            OnLivesChanged?.Invoke(currentLivesCount);
-
-            if (currentLivesCount == 0)
-            {
-                OnGameOver.Invoke();
-                selectedCards.Clear();
-                AudioManager.Instance.PlayGameOverSound();
-                Debug.Log("Game Over!");
-            }
         }
     }
 
     public void OnNextLevel()
     {
-        if (totalLevels <= currentLevel + 1) return;
+        if (totalLevels <= currentLevel + GameConstants.FLOAT_ONE) return;
 
         currentLevel++;
-        PlayerPrefs.SetInt(CURRENTLEVELKEY, currentLevel);
+        PlayerPrefs.SetInt(GameConstants.CURRENTLEVELKEY, currentLevel);
         PlayerPrefs.Save();
         PrepareLevelState();
     }
@@ -182,5 +182,6 @@ public class GameManager : MonoBehaviour
         PrepareLevelState();
     }
 
+    #endregion
 
 }

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
 
-    private const string CURRENTLEVELKEY = "currentLevel";
+    private const string CURRENTLEVELKEY = "CurrentLevel";
 
     [Header("All Panels")]
     [SerializeField] private GameObject startPanel;
@@ -111,7 +111,7 @@ public class UIManager : MonoBehaviour
     void OnNextLevelButtonClicked()
     {
 
-        int currentLevel = PlayerPrefs.GetInt(CURRENTLEVELKEY, 0);
+        int currentLevel = PlayerPrefs.GetInt(GameConstants.CURRENTLEVELKEY, 0);
         int totalLevels = GameManager.Instance.CloudData != null ? GameManager.Instance.TotalLevels : 0;
 
         if (currentLevel + 1 >= totalLevels)
@@ -172,7 +172,5 @@ public class UIManager : MonoBehaviour
     {
         winText.text = $"Level {level} Complete!\nYou did it in {moves} moves with a score of {score}. Great job!";
     }
-
-
 
 }

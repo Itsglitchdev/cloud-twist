@@ -53,7 +53,7 @@ public class CloudLayoutManager : MonoBehaviour
     {
         List<CloudData> cloudDataList = GameManager.Instance.CloudData;
         grid.enabled = true;
-        for (int i = 0; i < cloudDataList.Count; i++)
+        for (int i = GameConstants.INT_ZERO; i < cloudDataList.Count; i++)
         {
             GameObject cloud = Instantiate(cloudPrefab, cloudParent.transform);
             cloud.name = "Cloud_" + i;
@@ -76,7 +76,6 @@ public class CloudLayoutManager : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
-
 
 
 }
