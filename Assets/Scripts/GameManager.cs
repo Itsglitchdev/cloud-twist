@@ -7,7 +7,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
-    private const string CURRENTLEVELKEY = "CurrentLevel";
+    private const string CURRENTLEVELKEY = "currentLevel";
 
     public static GameManager Instance { get; private set; }
     public static event Action OnLevelInitialized;
@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
     public int RowCount => currentRowCount;
     public int TotalClouds => currentTotalClouds;
     public int LivesCount => currentLivesCount;
+    public int TotalLevels => totalLevels;
 
 
     private void Awake()
@@ -67,12 +68,18 @@ public class GameManager : MonoBehaviour
 
     public void GameInitialize()
     {
-        currentLevel = PlayerPrefs.GetInt("CurrentLevel", 0);
+        currentLevel = PlayerPrefs.GetInt(CURRENTLEVELKEY, 0);
+        totalLevels = gameData.levels.Count;
+        Debug.Log($"Total levels: {totalLevels}");
+        PrepareLevelState();
+    }
+
+    private void PrepareLevelState()
+    {
         score = 0;
         matchesCount = 0;
         movesCount = 0;
         comboStreak = 0;
-        totalLevels = gameData.levels.Count;
         InitializeLevel(currentLevel);
         EmitEvents();
         OnLevelInitialized?.Invoke();
@@ -133,7 +140,7 @@ public class GameManager : MonoBehaviour
                 OnGameWin?.Invoke();
                 OnWinText?.Invoke(currentLevel + 1, movesCount, score);
                 selectedCards.Clear();
-                Debug.Log("🎉 Game Win!");
+                Debug.Log("Game Win!");
             }
         }
         else
@@ -150,7 +157,7 @@ public class GameManager : MonoBehaviour
             {
                 OnGameOver.Invoke();
                 selectedCards.Clear();
-                Debug.Log("❌ Game Over!");
+                Debug.Log("Game Over!");
             }
         }
     }
@@ -160,26 +167,14 @@ public class GameManager : MonoBehaviour
         if (totalLevels <= currentLevel + 1) return;
 
         currentLevel++;
-        PlayerPrefs.SetInt("CurrentLevel", currentLevel);
+        PlayerPrefs.SetInt(CURRENTLEVELKEY, currentLevel);
         PlayerPrefs.Save();
-        score = 0;
-        matchesCount = 0;
-        movesCount = 0;
-        comboStreak = 0;
-        InitializeLevel(currentLevel);
-        EmitEvents();
-        OnLevelInitialized?.Invoke();
+        PrepareLevelState();
     }
 
     public void OnRestartLevel()
     {
-        score = 0;
-        matchesCount = 0;
-        movesCount = 0;
-        comboStreak = 0;
-        InitializeLevel(currentLevel);
-        EmitEvents();
-        OnLevelInitialized?.Invoke();
+        PrepareLevelState();
     }
 
 

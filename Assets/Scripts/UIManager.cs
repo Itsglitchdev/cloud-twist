@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
 
+    private const string CURRENTLEVELKEY = "currentLevel";
+
     [Header("All Panels")]
     [SerializeField] private GameObject startPanel;
     [SerializeField] private GameObject inGamePanel;
@@ -108,6 +110,15 @@ public class UIManager : MonoBehaviour
 
     void OnNextLevelButtonClicked()
     {
+
+        int currentLevel = PlayerPrefs.GetInt(CURRENTLEVELKEY, 0);
+        int totalLevels = GameManager.Instance.CloudData != null ? GameManager.Instance.TotalLevels : 0;
+
+        if (currentLevel + 1 >= totalLevels)
+        {
+            winText.text = "Stay tuned for the upcoming levels!! ";
+            return;
+        }
         gameWinPanel.SetActive(false);
         inGamePanel.SetActive(true);
         loadingObject.SetActive(true);

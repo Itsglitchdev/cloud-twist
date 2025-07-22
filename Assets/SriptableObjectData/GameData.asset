@@ -29,12 +29,6 @@ MonoBehaviour:
         cloudFront: 0
         imageFront: {fileID: 21300000, guid: 7eddd3f8db5446c48b7fe92be4d0167f, type: 3}
       back:
-        cloudBack: 1
-        imageBack: {fileID: 21300000, guid: 91851cc0d4d59b341a975a565ee0cf04, type: 3}
-    - front:
-        cloudFront: 0
-        imageFront: {fileID: 21300000, guid: 7eddd3f8db5446c48b7fe92be4d0167f, type: 3}
-      back:
         cloudBack: 2
         imageBack: {fileID: 21300000, guid: 6db1aac8bbf1e14448ede2eb6082cdae, type: 3}
     - front:
@@ -47,17 +41,23 @@ MonoBehaviour:
         cloudFront: 0
         imageFront: {fileID: 21300000, guid: 7eddd3f8db5446c48b7fe92be4d0167f, type: 3}
       back:
+        cloudBack: 2
+        imageBack: {fileID: 21300000, guid: 6db1aac8bbf1e14448ede2eb6082cdae, type: 3}
+    - front:
+        cloudFront: 0
+        imageFront: {fileID: 21300000, guid: 7eddd3f8db5446c48b7fe92be4d0167f, type: 3}
+      back:
         cloudBack: 1
         imageBack: {fileID: 21300000, guid: 91851cc0d4d59b341a975a565ee0cf04, type: 3}
     - front:
         cloudFront: 0
         imageFront: {fileID: 21300000, guid: 7eddd3f8db5446c48b7fe92be4d0167f, type: 3}
       back:
-        cloudBack: 2
-        imageBack: {fileID: 21300000, guid: 6db1aac8bbf1e14448ede2eb6082cdae, type: 3}
+        cloudBack: 1
+        imageBack: {fileID: 21300000, guid: 91851cc0d4d59b341a975a565ee0cf04, type: 3}
   - level: 2
     row: 2
-    col: 3
+    col: 4
     matchCount: 3
     lives: 2
     clouds:
